@@ -42,7 +42,7 @@ def main():
     application.run_webhook(
         listen="0.0.0.0",
         port=5000,
-        url_path=8353682116:AAG-XvsJxaMZ83leHuJNXNR8uy7ZgXHlX2s,  # Gunakan token bot Anda di sini
+        url_path="8353682116:AAG-XvsJxaMZ83leHuJNXNR8uy7ZgXHlX2s",  # Gunakan token bot Anda di sini
         webhook_url=f"web-production-337ef.up.railway.app/8353682116:AAG-XvsJxaMZ83leHuJNXNR8uy7ZgXHlX2s",  # Gantilah dengan URL Railway dan token Anda
     )
 
