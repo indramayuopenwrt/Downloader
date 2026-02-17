@@ -1,5 +1,5 @@
 python-telegram-bot==20.0
 requests
-tiktok-api
+TikTok-Api
 beautifulsoup4
 youtube-dl
