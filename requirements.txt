@@ -4,3 +4,4 @@ TikTok-Api
 beautifulsoup4
 youtube-dl
 yt-dlp
+python-telegram-bot[webhooks]
