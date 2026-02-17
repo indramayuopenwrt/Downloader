@@ -1,7 +1,2 @@
-python-telegram-bot==20.0
-requests
-TikTok-Api
-beautifulsoup4
-youtube-dl
-yt-dlp
 python-telegram-bot[webhooks]
+yt-dlp
