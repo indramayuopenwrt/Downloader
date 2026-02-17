@@ -3,3 +3,4 @@ requests
 TikTok-Api
 beautifulsoup4
 youtube-dl
+yt-dlp
