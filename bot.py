@@ -27,7 +27,12 @@ def remove_webhook(token):
 def get_metadata(url):
     try:
         # Mendapatkan HTML dari URL
+        logger.info(f"Mengambil metadata dari URL: {url}")
         response = requests.get(url)
+        if response.status_code != 200:
+            logger.error(f"Gagal mengakses URL: {url} dengan status code: {response.status_code}")
+            return "Gagal mengakses metadata."
+        
         soup = BeautifulSoup(response.text, 'html.parser')
 
         # Mencari tag meta description
@@ -37,7 +42,7 @@ def get_metadata(url):
         else:
             return "Deskripsi tidak ditemukan."
     except Exception as e:
-        logger.error(f"Terjadi kesalahan: {e}")
+        logger.error(f"Terjadi kesalahan saat mengambil metadata: {e}")
         return f"Terjadi kesalahan: {e}"
 
 # Fungsi untuk mengonversi URL ke public link (untuk Facebook dan TikTok)
@@ -57,7 +62,9 @@ def download_tiktok(url):
             'postprocessors': [{
                 'key': 'FFmpegVideoConvertor',
                 'preferedformat': 'mp4',  # Konversi ke mp4
-            }]
+            }],
+            'quiet': False,  # Menampilkan output lebih detail
+            'verbose': True  # Menampilkan log lebih lengkap
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)
@@ -79,7 +86,9 @@ def download_facebook(url):
             'postprocessors': [{
                 'key': 'FFmpegVideoConvertor',
                 'preferedformat': 'mp4',  # Konversi ke mp4
-            }]
+            }],
+            'quiet': False,  # Menampilkan output lebih detail
+            'verbose': True  # Menampilkan log lebih lengkap
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)
