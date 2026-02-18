@@ -20,6 +20,7 @@ def download_tiktok(url):
             'outtmpl': 'downloads/%(id)s.%(ext)s',  # Template untuk output file
             'quiet': True,
             'noplaylist': True,
+            'writeinfojson': True,  # Menyimpan metadata dalam format JSON
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)
@@ -39,6 +40,7 @@ def download_facebook(url):
             'outtmpl': 'downloads/%(id)s.%(ext)s',  # Template untuk output file
             'quiet': True,
             'noplaylist': True,
+            'writeinfojson': True,  # Menyimpan metadata dalam format JSON
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)
