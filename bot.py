@@ -3,6 +3,7 @@ import yt_dlp
 from telegram import Update
 from telegram.ext import Application, MessageHandler, filters
 from telegram.ext import CommandHandler
+import requests
 
 # Setup logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -11,6 +12,15 @@ logger = logging.getLogger(__name__)
 
 # Token Bot Telegram Anda
 TELEGRAM_TOKEN = '8353682116:AAG-XvsJxaMZ83leHuJNXNR8uy7ZgXHlX2s'
+
+# Fungsi untuk memendekkan URL
+def shorten_url(url):
+    try:
+        response = requests.get(f"https://api.shrtco.de/v2/shorten?url={url}")
+        return response.json()['result']['full_short_link']
+    except Exception as e:
+        logger.error(f"Gagal memendekkan URL: {e}")
+        return url  # Kembalikan URL aslinya jika pemendekan gagal
 
 # Fungsi untuk mengunduh video TikTok menggunakan yt-dlp dan mendapatkan metadata
 def download_tiktok(url):
@@ -27,7 +37,8 @@ def download_tiktok(url):
             video_url = info_dict['url']  # Mendapatkan URL video setelah diunduh
             description = info_dict.get('description', 'Tidak ada deskripsi tersedia')  # Mendapatkan deskripsi
         logger.info(f"Video TikTok berhasil diunduh: {video_url}")
-        return video_url, description
+        short_url = shorten_url(video_url)  # Memendekkan URL
+        return short_url, description
     except Exception as e:
         logger.error(f"Gagal mengunduh video TikTok: {e}")
         return None, None
@@ -47,7 +58,8 @@ def download_facebook(url):
             video_url = info_dict['url']  # Mendapatkan URL video setelah diunduh
             description = info_dict.get('description', 'Tidak ada deskripsi tersedia')  # Mendapatkan deskripsi
         logger.info(f"Video Facebook berhasil diunduh: {video_url}")
-        return video_url, description
+        short_url = shorten_url(video_url)  # Memendekkan URL
+        return short_url, description
     except Exception as e:
         logger.error(f"Gagal mengunduh video Facebook: {e}")
         return None, None
