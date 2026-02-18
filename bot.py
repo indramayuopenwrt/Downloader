@@ -14,23 +14,35 @@ TELEGRAM_TOKEN = '8353682116:AAG-XvsJxaMZ83leHuJNXNR8uy7ZgXHlX2s'
 
 # Fungsi untuk mengunduh video TikTok menggunakan yt-dlp
 def download_tiktok(url):
-    ydl_opts = {
-        'outtmpl': 'downloads/%(id)s.%(ext)s',  # Template untuk output file
-    }
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info_dict = ydl.extract_info(url, download=True)
-        video_url = info_dict['url']  # Mendapatkan URL video setelah diunduh
-    return video_url
+    logger.info(f"Mulai mengunduh video TikTok: {url}")
+    try:
+        ydl_opts = {
+            'outtmpl': 'downloads/%(id)s.%(ext)s',  # Template untuk output file
+        }
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info_dict = ydl.extract_info(url, download=True)
+            video_url = info_dict['url']  # Mendapatkan URL video setelah diunduh
+        logger.info(f"Video TikTok berhasil diunduh: {video_url}")
+        return video_url
+    except Exception as e:
+        logger.error(f"Gagal mengunduh video TikTok: {e}")
+        return None
 
 # Fungsi untuk mengunduh video Facebook menggunakan yt-dlp
 def download_facebook(url):
-    ydl_opts = {
-        'outtmpl': 'downloads/%(id)s.%(ext)s',  # Template untuk output file
-    }
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info_dict = ydl.extract_info(url, download=True)
-        video_url = info_dict['url']  # Mendapatkan URL video setelah diunduh
-    return video_url
+    logger.info(f"Mulai mengunduh video Facebook: {url}")
+    try:
+        ydl_opts = {
+            'outtmpl': 'downloads/%(id)s.%(ext)s',  # Template untuk output file
+        }
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info_dict = ydl.extract_info(url, download=True)
+            video_url = info_dict['url']  # Mendapatkan URL video setelah diunduh
+        logger.info(f"Video Facebook berhasil diunduh: {video_url}")
+        return video_url
+    except Exception as e:
+        logger.error(f"Gagal mengunduh video Facebook: {e}")
+        return None
 
 # Fungsi untuk mendeteksi jenis URL dan mengunduhnya
 async def detect_and_download(update: Update, context):
@@ -40,11 +52,17 @@ async def detect_and_download(update: Update, context):
     if "tiktok.com" in url:
         # Jika URL TikTok ditemukan
         video_url = download_tiktok(url)
-        await update.message.reply_text(f"Video TikTok berhasil diunduh: {video_url}")
+        if video_url:
+            await update.message.reply_text(f"Video TikTok berhasil diunduh: {video_url}")
+        else:
+            await update.message.reply_text("Gagal mengunduh video TikTok.")
     elif "facebook.com" in url:
         # Jika URL Facebook ditemukan
         video_url = download_facebook(url)
-        await update.message.reply_text(f"Video Facebook berhasil diunduh: {video_url}")
+        if video_url:
+            await update.message.reply_text(f"Video Facebook berhasil diunduh: {video_url}")
+        else:
+            await update.message.reply_text("Gagal mengunduh video Facebook.")
     else:
         # Jika URL tidak dikenali
         await update.message.reply_text("Tautan tidak dikenali. Pastikan itu adalah tautan TikTok atau Facebook!")
