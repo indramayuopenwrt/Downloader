@@ -1,14 +1,43 @@
-import logging
-import yt_dlp
+import requests
 from telegram import Update
 from telegram.ext import Application, MessageHandler, filters
+from bs4 import BeautifulSoup
+import yt_dlp
 
-# Setup logging
-logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                    level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Fungsi untuk menghapus webhook
+def remove_webhook(token):
+    url = f'https://api.telegram.org/bot{token}/deleteWebhook'
+    response = requests.get(url)
+    if response.status_code == 200:
+        print("Webhook berhasil dihapus.")
+    else:
+        print("Gagal menghapus webhook.")
 
-# Fungsi untuk mengunduh dan mengonversi video TikTok
+# Fungsi untuk mendapatkan metadata description dari URL
+def get_metadata(url):
+    try:
+        # Mendapatkan HTML dari URL
+        response = requests.get(url)
+        soup = BeautifulSoup(response.text, 'html.parser')
+
+        # Mencari tag meta description
+        description = soup.find('meta', attrs={'name': 'description'}) or soup.find('meta', attrs={'property': 'og:description'})
+        if description:
+            return description.get('content')
+        else:
+            return "Deskripsi tidak ditemukan."
+    except Exception as e:
+        return f"Terjadi kesalahan: {e}"
+
+# Fungsi untuk mengonversi URL ke public link (untuk Facebook dan TikTok)
+def convert_to_public_link(url):
+    if "facebook.com" in url:
+        return url.split('?')[0]  # Menghapus parameter query dari link
+    elif "tiktok.com" in url:
+        return url.split('?')[0]  # Menghapus parameter query dari link
+    return url
+
+# Fungsi untuk mengunduh dan mengirimkan video TikTok
 def download_tiktok(url):
     logger.info(f"Mulai mengunduh video TikTok: {url}")
     try:
@@ -30,7 +59,7 @@ def download_tiktok(url):
         logger.error(f"Gagal mengunduh video TikTok: {e}")
         return None, None, None
 
-# Fungsi untuk mengonversi dan mengunduh video Facebook
+# Fungsi untuk mengunduh dan mengirimkan video Facebook
 def download_facebook(url):
     logger.info(f"Mulai mengunduh video Facebook: {url}")
     try:
@@ -52,41 +81,63 @@ def download_facebook(url):
         logger.error(f"Gagal mengunduh video Facebook: {e}")
         return None, None, None
 
-# Fungsi untuk mendeteksi URL dan mengunduh video
-async def detect_and_download(update: Update, context):
-    url = update.message.text
-    logger.info(f"Mendeteksi URL: {url}")
-
-    if "tiktok.com" in url:
-        # Mengonversi dan mengunduh video TikTok
-        video_file, video_title, video_description = download_tiktok(url)
-        if video_file:
-            # Kirimkan video dan deskripsi ke pengguna
-            await update.message.reply_text(f"**Judul Video**: {video_title}\n**Deskripsi**: {video_description}")
-            await update.message.reply_video(video_file)
-        else:
-            await update.message.reply_text("Gagal mengunduh video TikTok.")
-    elif "facebook.com" in url:
-        # Mengonversi dan mengunduh video Facebook
-        video_file, video_title, video_description = download_facebook(url)
-        if video_file:
-            # Kirimkan video dan deskripsi ke pengguna
-            await update.message.reply_text(f"**Judul Video**: {video_title}\n**Deskripsi**: {video_description}")
-            await update.message.reply_video(video_file)
-        else:
-            await update.message.reply_text("Gagal mengunduh video Facebook.")
+# Fungsi untuk mendeteksi platform berdasarkan link
+def detect_platform(url):
+    if "facebook.com" in url:
+        return "Facebook"
+    elif "tiktok.com" in url:
+        return "TikTok"
     else:
-        # Jika URL tidak dikenali
-        await update.message.reply_text("Tautan tidak dikenali. Pastikan itu adalah tautan TikTok atau Facebook!")
+        return "Platform Tidak Tersedia."
 
-# Fungsi utama untuk memulai bot
+# Fungsi untuk menangani pesan yang dikirim ke bot
+async def handle_message(update: Update, context):
+    message = update.message.text
+    url = message.strip()
+
+    # Memastikan link valid
+    if "http" in url:
+        # Mengambil platform berdasarkan link
+        platform = detect_platform(url)
+        
+        # Mengambil metadata dari URL
+        metadata = get_metadata(url)
+        
+        # Mengonversi ke public link (jika perlu)
+        public_link = convert_to_public_link(url)
+
+        # Mengunduh video berdasarkan platform
+        if platform == "TikTok":
+            video_file, video_title, video_description = download_tiktok(url)
+        elif platform == "Facebook":
+            video_file, video_title, video_description = download_facebook(url)
+        else:
+            await update.message.reply_text(f"Platform {platform} tidak dikenali.")
+            return
+        
+        # Mengirimkan video dan metadata ke pengguna
+        if video_file:
+            await update.message.reply_text(f"**Judul Video**: {video_title}\n**Deskripsi**: {video_description}\n**Link Publik**: {public_link}")
+            await update.message.reply_video(video_file)
+        else:
+            await update.message.reply_text("Gagal mengunduh video.")
+    else:
+        await update.message.reply_text("Mohon kirimkan link yang valid.")
+
 def main():
-    application = Application.builder().token('8353682116:AAG-XvsJxaMZ83leHuJNXNR8uy7ZgXHlX2s').build()
+    # Gantilah 'YOUR_BOT_TOKEN' dengan token bot Anda
+    token = '8353682116:AAG-XvsJxaMZ83leHuJNXNR8uy7ZgXHlX2s'
 
-    # Menambahkan handler untuk mendeteksi URL dan mengunduh video
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, detect_and_download))
+    # Menghapus webhook yang ada (untuk memastikan polling yang digunakan)
+    remove_webhook(token)
 
-    # Menjalankan bot
+    # Membuat aplikasi bot dengan token
+    application = Application.builder().token(token).build()
+
+    # Menambahkan handler untuk menangani pesan
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+
+    # Menjalankan polling
     application.run_polling()
 
 if __name__ == '__main__':
