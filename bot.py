@@ -3,15 +3,20 @@ from telegram import Update
 from telegram.ext import Application, MessageHandler, filters
 from bs4 import BeautifulSoup
 import yt_dlp
+import logging  # Menambahkan import logging
+
+# Menambahkan konfigurasi logger
+logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger()
 
 # Fungsi untuk menghapus webhook
 def remove_webhook(token):
     url = f'https://api.telegram.org/bot{token}/deleteWebhook'
     response = requests.get(url)
     if response.status_code == 200:
-        print("Webhook berhasil dihapus.")
+        logger.info("Webhook berhasil dihapus.")
     else:
-        print("Gagal menghapus webhook.")
+        logger.error("Gagal menghapus webhook.")
 
 # Fungsi untuk mendapatkan metadata description dari URL
 def get_metadata(url):
@@ -27,6 +32,7 @@ def get_metadata(url):
         else:
             return "Deskripsi tidak ditemukan."
     except Exception as e:
+        logger.error(f"Terjadi kesalahan: {e}")
         return f"Terjadi kesalahan: {e}"
 
 # Fungsi untuk mengonversi URL ke public link (untuk Facebook dan TikTok)
