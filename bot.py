@@ -3,11 +3,16 @@ from telegram import Update
 from telegram.ext import Application, MessageHandler, filters
 from bs4 import BeautifulSoup
 import yt_dlp
-import logging  # Menambahkan import logging
+import logging
+import os
 
 # Menambahkan konfigurasi logger
 logging.basicConfig(format='%(asctime)s - %(message)s', level=logging.INFO)
 logger = logging.getLogger()
+
+# Membuat folder 'downloads' jika belum ada
+if not os.path.exists("downloads"):
+    os.makedirs("downloads")
 
 # Fungsi untuk menghapus webhook
 def remove_webhook(token):
