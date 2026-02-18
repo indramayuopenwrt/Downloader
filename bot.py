@@ -13,10 +13,31 @@ logger = logging.getLogger(__name__)
 # Token Bot Telegram Anda
 TELEGRAM_TOKEN = '8353682116:AAG-XvsJxaMZ83leHuJNXNR8uy7ZgXHlX2s'
 
-# Fungsi untuk memverifikasi apakah URL adalah link video Facebook yang valid
-def is_valid_facebook_url(url):
-    # Cek apakah URL adalah link video Facebook yang valid
-    return bool(re.match(r'https://www\.facebook\.com/.*?/videos/\d+', url))
+# Fungsi untuk memendekkan URL
+def shorten_url(url):
+    try:
+        response = requests.get(f"https://api.shrtco.de/v2/shorten?url={url}")
+        return response.json()['result']['full_short_link']
+    except Exception as e:
+        logger.error(f"Gagal memendekkan URL: {e}")
+        return url  # Kembalikan URL aslinya jika pemendekan gagal
+
+# Fungsi untuk mengonversi URL Facebook berbagi menjadi URL video langsung
+def convert_facebook_url(url):
+    # Cek apakah URL berbagi
+    match = re.match(r'https://www\.facebook\.com/share/r/(\S+)', url)
+    if match:
+        # Mengonversi URL berbagi menjadi link video langsung
+        video_id = match.group(1)
+        return f'https://www.facebook.com/video.php?v={video_id}'
+    return url
+
+# Fungsi untuk mengonversi URL TikTok (untuk menangani berbagai format URL)
+def convert_tiktok_url(url):
+    if "tiktok.com" in url:
+        # TikTok biasanya sudah memiliki link yang bisa diunduh langsung
+        return url
+    return None
 
 # Fungsi untuk mengunduh video TikTok menggunakan yt-dlp dan mendapatkan metadata
 def download_tiktok(url):
@@ -50,9 +71,7 @@ def download_tiktok(url):
 
 # Fungsi untuk mengunduh video Facebook menggunakan yt-dlp dan mendapatkan metadata
 def download_facebook(url):
-    if not is_valid_facebook_url(url):
-        return "URL Facebook tidak valid. Pastikan itu adalah link video langsung."
-
+    url = convert_facebook_url(url)  # Mengonversi URL berbagi menjadi URL video langsung
     logger.info(f"Mulai mengunduh video Facebook: {url}")
     try:
         ydl_opts = {
@@ -88,6 +107,8 @@ async def detect_and_download(update: Update, context):
     message = await update.message.reply_text("🔄 Mengunduh video, mohon tunggu...")
 
     if "tiktok.com" in url:
+        # Mengonversi URL TikTok
+        url = convert_tiktok_url(url)
         # Jika URL TikTok ditemukan
         caption = download_tiktok(url)
         if caption:
