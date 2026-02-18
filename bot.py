@@ -8,51 +8,57 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
                     level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Fungsi untuk mengunduh video TikTok menggunakan yt-dlp
+# Fungsi untuk mengunduh dan mengonversi video TikTok
 def download_tiktok(url):
     logger.info(f"Mulai mengunduh video TikTok: {url}")
     try:
-        # Menyimpan file video secara lokal di folder 'downloads'
         ydl_opts = {
-            'outtmpl': 'downloads/%(id)s.%(ext)s',  # Template untuk output file
+            'outtmpl': 'downloads/%(id)s.%(ext)s',  # Menyimpan video secara lokal
+            'postprocessors': [{
+                'key': 'FFmpegVideoConvertor',
+                'preferedformat': 'mp4',  # Konversi ke mp4
+            }]
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)
-            video_file = info_dict['filepath']  # Mendapatkan path file video
-            video_title = info_dict.get('title', 'No Title Available')  # Mengambil judul video
-            video_description = info_dict.get('description', 'No Description Available')  # Mengambil deskripsi video
+            video_file = info_dict['filepath']
+            video_title = info_dict.get('title', 'No Title Available')
+            video_description = info_dict.get('description', 'No Description Available')
         logger.info(f"Video TikTok berhasil diunduh: {video_file}")
-        return video_file, video_title, video_description  # Mengembalikan file video dan metadata
+        return video_file, video_title, video_description
     except Exception as e:
         logger.error(f"Gagal mengunduh video TikTok: {e}")
         return None, None, None
 
-# Fungsi untuk mengunduh video Facebook menggunakan yt-dlp
+# Fungsi untuk mengonversi dan mengunduh video Facebook
 def download_facebook(url):
     logger.info(f"Mulai mengunduh video Facebook: {url}")
     try:
-        # Menyimpan file video secara lokal di folder 'downloads'
         ydl_opts = {
-            'outtmpl': 'downloads/%(id)s.%(ext)s',  # Template untuk output file
+            'outtmpl': 'downloads/%(id)s.%(ext)s',  # Menyimpan video secara lokal
+            'postprocessors': [{
+                'key': 'FFmpegVideoConvertor',
+                'preferedformat': 'mp4',  # Konversi ke mp4
+            }]
         }
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info_dict = ydl.extract_info(url, download=True)
-            video_file = info_dict['filepath']  # Mendapatkan path file video
-            video_title = info_dict.get('title', 'No Title Available')  # Mengambil judul video
-            video_description = info_dict.get('description', 'No Description Available')  # Mengambil deskripsi video
+            video_file = info_dict['filepath']
+            video_title = info_dict.get('title', 'No Title Available')
+            video_description = info_dict.get('description', 'No Description Available')
         logger.info(f"Video Facebook berhasil diunduh: {video_file}")
-        return video_file, video_title, video_description  # Mengembalikan file video dan metadata
+        return video_file, video_title, video_description
     except Exception as e:
         logger.error(f"Gagal mengunduh video Facebook: {e}")
         return None, None, None
 
-# Fungsi untuk mendeteksi jenis URL dan mengunduhnya
+# Fungsi untuk mendeteksi URL dan mengunduh video
 async def detect_and_download(update: Update, context):
     url = update.message.text
     logger.info(f"Mendeteksi URL: {url}")
 
     if "tiktok.com" in url:
-        # Jika URL TikTok ditemukan
+        # Mengonversi dan mengunduh video TikTok
         video_file, video_title, video_description = download_tiktok(url)
         if video_file:
             # Kirimkan video dan deskripsi ke pengguna
@@ -61,7 +67,7 @@ async def detect_and_download(update: Update, context):
         else:
             await update.message.reply_text("Gagal mengunduh video TikTok.")
     elif "facebook.com" in url:
-        # Jika URL Facebook ditemukan
+        # Mengonversi dan mengunduh video Facebook
         video_file, video_title, video_description = download_facebook(url)
         if video_file:
             # Kirimkan video dan deskripsi ke pengguna
