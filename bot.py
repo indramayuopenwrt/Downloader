@@ -1,6 +1,6 @@
 import logging
 import yt_dlp
-from telegram import Update
+from telegram import Update, InputMediaVideo
 from telegram.ext import Application, MessageHandler, filters
 import requests
 import re
@@ -63,10 +63,10 @@ def download_tiktok(url):
         caption += f"👤 {uploader}\n"
         caption += f"📌 {description}\n\n"
         
-        return caption
+        return caption, video_url
     except Exception as e:
         logger.error(f"Gagal mengunduh video TikTok: {e}")
-        return None
+        return None, None
 
 # Fungsi untuk mengunduh video Facebook menggunakan yt-dlp dan mendapatkan metadata
 def download_facebook(url):
@@ -93,10 +93,10 @@ def download_facebook(url):
         caption += f"👤 {uploader}\n"
         caption += f"📌 {description}\n\n"
 
-        return caption
+        return caption, video_url
     except Exception as e:
         logger.error(f"Gagal mengunduh video Facebook: {e}")
-        return "Gagal mengunduh video Facebook."
+        return "Gagal mengunduh video Facebook.", None
 
 # Fungsi untuk mendeteksi jenis URL dan mengunduhnya
 async def detect_and_download(update: Update, context):
@@ -108,16 +108,18 @@ async def detect_and_download(update: Update, context):
         # Mengonversi URL TikTok
         url = convert_tiktok_url(url)
         # Jika URL TikTok ditemukan
-        caption = download_tiktok(url)
-        if caption:
+        caption, video_url = download_tiktok(url)
+        if caption and video_url:
             await message.edit_text(caption)
+            await update.message.reply_video(video_url)  # Mengirim video setelah caption
         else:
             await message.edit_text("Gagal mengunduh video TikTok.")
     elif "facebook.com" in url:
         # Jika URL Facebook ditemukan
-        caption = download_facebook(url)
-        if caption:
+        caption, video_url = download_facebook(url)
+        if caption and video_url:
             await message.edit_text(caption)
+            await update.message.reply_video(video_url)  # Mengirim video setelah caption
         else:
             await message.edit_text("Gagal mengunduh video Facebook.")
     else:
