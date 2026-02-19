@@ -110,16 +110,14 @@ async def detect_and_download(update: Update, context):
         # Jika URL TikTok ditemukan
         caption, video_url = download_tiktok(url)
         if caption and video_url:
-            await message.edit_text(caption)
-            await update.message.reply_video(video_url)  # Mengirim video setelah caption
+            await update.message.reply_video(video_url, caption=caption)  # Mengirim video dengan caption
         else:
             await message.edit_text("Gagal mengunduh video TikTok.")
     elif "facebook.com" in url:
         # Jika URL Facebook ditemukan
         caption, video_url = download_facebook(url)
         if caption and video_url:
-            await message.edit_text(caption)
-            await update.message.reply_video(video_url)  # Mengirim video setelah caption
+            await update.message.reply_video(video_url, caption=caption)  # Mengirim video dengan caption
         else:
             await message.edit_text("Gagal mengunduh video Facebook.")
     else:
