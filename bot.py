@@ -59,10 +59,9 @@ def download_tiktok(url):
 
         logger.info(f"Video TikTok berhasil diunduh: {video_url}")
         short_url = shorten_url(video_url)  # Memendekkan URL
-        caption = f"🎬 **{view_count} tampilan** ・ **{like_count} reaksi**\n"
-        caption += f"👤 **{uploader}**\n"
-        caption += f"📌 **{description}**\n\n"
-        caption += f"🔗 **Link Unduhan**: {short_url}"
+        caption = f"🎬 {view_count} tampilan ・ {like_count} reaksi\n"
+        caption += f"👤 {uploader}\n"
+        caption += f"📌 {description}\n\n"
         
         return caption
     except Exception as e:
@@ -90,10 +89,9 @@ def download_facebook(url):
 
         logger.info(f"Video Facebook berhasil diunduh: {video_url}")
         short_url = shorten_url(video_url)  # Memendekkan URL
-        caption = f"🎬 **{view_count} tampilan** ・ **{like_count} reaksi**\n"
-        caption += f"👤 **{uploader}**\n"
-        caption += f"📌 **{description}**\n\n"
-        caption += f"🔗 **Link Unduhan**: {short_url}"
+        caption = f"🎬 {view_count} tampilan ・ {like_count} reaksi\n"
+        caption += f"👤 {uploader}\n"
+        caption += f"📌 {description}\n\n"
 
         return caption
     except Exception as e:
