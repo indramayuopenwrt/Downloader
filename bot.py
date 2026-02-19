@@ -1,4 +1,3 @@
-
 import logging
 import yt_dlp
 from telegram import Update
@@ -80,9 +79,9 @@ def download_tiktok(url, chat_id, message_id, bot):
 
         logger.info(f"Video TikTok berhasil diunduh: {video_url}")
         short_url = shorten_url(video_url)  # Memendekkan URL
-        caption = f"🎬 **{view_count} tampilan** ・ **{like_count} reaksi**\n"
-        caption += f"👤 **{uploader}**\n"
-        caption += f"📌 **{description}**\n\n"
+        caption = f"🎬 {view_count} tampilan ・ {like_count} reaksi\n"
+        caption += f"👤 {uploader}\n"
+        caption += f"📌 {description}\n\n"
 
         return caption, video_url
     except Exception as e:
@@ -114,9 +113,9 @@ def download_facebook(url, chat_id, message_id, bot):
 
         logger.info(f"Video Facebook berhasil diunduh: {video_url}")
         short_url = shorten_url(video_url)  # Memendekkan URL
-        caption = f"🎬 **{view_count} tampilan** ・ **{like_count} reaksi**\n"
-        caption += f"👤 **{uploader}**\n"
-        caption += f"📌 **{description}**\n\n"
+        caption = f"🎬 {view_count} tampilan ・ {like_count} reaksi\n"
+        caption += f"👤 {uploader}\n"
+        caption += f"📌 {description}\n\n"
 
         return caption, video_url
     except Exception as e:
