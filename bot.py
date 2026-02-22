@@ -11,7 +11,7 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 # Token Bot Telegram Anda
-TELEGRAM_TOKEN = '8353682116:AAG-XvsJxaMZ83leHuJNXNR8uy7ZgXHlX2s'  # Ganti dengan token bot Anda
+TELEGRAM_TOKEN = '8353682116:AAG-XvsJxaMZ83leHuJNXNR8uy7ZgXHlX2s'
 
 # Fungsi untuk memendekkan URL
 def shorten_url(url):
@@ -135,7 +135,6 @@ async def detect_and_download(update: Update, context):
         caption, video_url = download_tiktok(url, update.message.chat_id, message.message_id, context.bot)
         if caption and video_url:
             await update.message.reply_video(video_url, caption=caption)  # Mengirim video dengan caption
-            await message.delete()  # Menghapus pesan progress setelah video dikirim
         else:
             await message.edit_text("Gagal mengunduh video TikTok.")
     elif "facebook.com" in url:
@@ -143,7 +142,6 @@ async def detect_and_download(update: Update, context):
         caption, video_url = download_facebook(url, update.message.chat_id, message.message_id, context.bot)
         if caption and video_url:
             await update.message.reply_video(video_url, caption=caption)  # Mengirim video dengan caption
-            await message.delete()  # Menghapus pesan progress setelah video dikirim
         else:
             await message.edit_text("Gagal mengunduh video Facebook.")
     else:
