@@ -135,6 +135,7 @@ async def detect_and_download(update: Update, context):
         caption, video_url = download_tiktok(url, update.message.chat_id, message.message_id, context.bot)
         if caption and video_url:
             await update.message.reply_video(video_url, caption=caption)  # Mengirim video dengan caption
+            await message.delete()  # Menghapus pesan progress setelah video dikirim
         else:
             await message.edit_text("Gagal mengunduh video TikTok.")
     elif "facebook.com" in url:
@@ -142,6 +143,7 @@ async def detect_and_download(update: Update, context):
         caption, video_url = download_facebook(url, update.message.chat_id, message.message_id, context.bot)
         if caption and video_url:
             await update.message.reply_video(video_url, caption=caption)  # Mengirim video dengan caption
+            await message.delete()  # Menghapus pesan progress setelah video dikirim
         else:
             await message.edit_text("Gagal mengunduh video Facebook.")
     else:
